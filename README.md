@@ -14,3 +14,4 @@ For example, we test 2 times, there are 2 group data. X={Xi, Xj, Xz, ...}, Y={Yi
 
 GOMean = pow(((Xi/Yi)*(Xj/Yj)*(Xz/Yz)*..., 1/n)
 
+Refer: https://en.wikipedia.org/wiki/Geometric_mean
