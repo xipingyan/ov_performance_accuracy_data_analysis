@@ -1,11 +1,12 @@
 # README
 This is a script for analyzing the csv file from OpenVINO performance and accuracy test.
+<br>
 
-``Functions:``
-``1:`` Calc GOMean.
-``2:`` Statistic performance data with big difference.
-``3:`` Statistic accuracy with different result.
-``4:`` Result will be also saved to "analysis_result.csv"
+``Functions:``  <br>
+``1:`` Calc GOMean. <br>
+``2:`` Statistic performance data with big difference. <br>
+``3:`` Statistic accuracy with different result. <br>
+``4:`` Result will be also saved to "analysis_result.csv" <br>
 
 #### GOMean formula
 
