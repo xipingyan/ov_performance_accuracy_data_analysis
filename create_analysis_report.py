@@ -33,7 +33,7 @@ def CalcAvaiableIndex(performances):
         return
 
     list_size = len(performances[0])
-    avaiable_idx = [ 1 ] * list_size
+    avaiable_idx = [ 0 ] * list_size
     
     for pf in performances:
         if len(pf) != list_size:
@@ -85,6 +85,11 @@ def CompareAccuracy(accurays, avaiable_idx):
     match_idx = [ 0 ] * list_size
 
     for i in range(list_size):
+        # # Filter?
+        # if avaiable_idx[i] != 1:
+        #     match_idx[i] = -1
+        #     continue
+
         Match = 0
         all_failed = 0
         all_crashed = 0
@@ -113,7 +118,7 @@ def CompareAccuracy(accurays, avaiable_idx):
             Match = -1
         elif all_passed == len(accurays):   # All PASSED
             Match = 1
-        elif all_gt > 0:
+        elif all_gt > 0:                    # Ignore groundtruth
             Match = -1
         elif all_none == len(accurays):
             Match = -1
@@ -129,13 +134,15 @@ def FindBigDiffPerformance(p1, p2, p3, p4, avaiable_idx):
     list_size = len(avaiable_idx)
     big_diff_idx = [ 0 ] * list_size
     for i in range(len(p1)):
-        if avaiable_idx[i] == 1:
-            val1 = (p1[i] + p2[i]) / 2.0
-            val2 = (p3[i] + p4[i]) / 2.0
-            diff = abs(val1 - val2)
-            # diff > mean * 20% && diff > 2
-            if diff > (val1 + val2) / 2.0 * 0.2 and diff > 2:
-                big_diff_idx[i] = 1
+        # Filter?
+        # if avaiable_idx[i] != 1:
+        #     continue
+        val1 = (p1[i] + p2[i]) / 2.0
+        val2 = (p3[i] + p4[i]) / 2.0
+        diff = abs(val1 - val2)
+        # diff > mean * 20% && diff > 2
+        if diff > (val1 + val2) / 2.0 * 0.2 and diff > 2:
+            big_diff_idx[i] = 1
     
     return big_diff_idx
 
