@@ -118,6 +118,12 @@ def CompareAccuracy(accuracys, avaiable_idx):
     match_idx = [ 0 ] * list_size
 
     for i in range(list_size):
+        # Ignore groundtruth
+        if i % 2 == 0:
+            match_idx[i] = -1
+            # print("accuracys[j][i]=", accuracys[0][i])
+            continue
+
         # # Filter?
         # if avaiable_idx[i] != 1:
         #     match_idx[i] = -1
@@ -168,6 +174,10 @@ def FindBigDiffPerformance(performances, avaiable_idx):
     big_diff_val = [ 0 ] * list_size
     big_diff_percent = [ 0 ] * list_size
     for i in range(len(performances[0])):
+        # ignore groundtruth
+        if i % 2 == 0:
+            continue
+
         if group_2_data:
             big_diff_val[i] = float(performances[1][i]) - float(performances[0][i])
             big_diff_percent[i] = (big_diff_val[i]) / ((float(performances[1][i]) + float(performances[0][i])) / 2.0)

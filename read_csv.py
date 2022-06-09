@@ -14,6 +14,7 @@ def ReadCSV_out_performance_accuracy(fn):
         try:
             for row in reader:
                 idx += 1
+
                 # print(row)
                 if idx == 0:
                     print("Ignore title of CSV.")
