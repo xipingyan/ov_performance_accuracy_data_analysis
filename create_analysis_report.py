@@ -1,6 +1,7 @@
 
 #!/usr/bin/python
 import math
+from pickle import TRUE
 import sys
 from tokenize import group
 from read_csv import ReadCSV_out_performance_accuracy as ReadCSV
@@ -14,7 +15,9 @@ def ParseArgs():
             "../2_test-dlbenchmark-cpu_dlbenchmark_i9-9900k_public_22ee17fd_ubuntu20.04/out_performance_accuracy.csv"]
     new_files = ["../1_test-dlbenchmark-cpu_public_93e2be1d_ubuntu20.04/out_performance_accuracy.csv",
             "../2_test-dlbenchmark-cpu_public_93e2be1d_ubuntu20.04/out_performance_accuracy.csv"]
-  
+    # old_files = ["../1_test-dlbenchmark-cpu_dlbenchmark_public_22ee17fd_ubuntu20.04/out_performance_accuracy.csv"]
+    # new_files = ["../1_test-dlbenchmark-cpu_public_93e2be1d_ubuntu20.04/out_performance_accuracy.csv"]
+
     print("Argv number =", len(sys.argv))
     if len(sys.argv) == 2 and sys.argv[1] == "-h":
         print("Usage: support 2 or 4 param")
@@ -84,16 +87,16 @@ def CalcGOM_of_2result(performances, avaiable_idx):
             if data_2_group:
                 performances[0][i] = float(performances[0][i])
                 performances[1][i] = float(performances[1][i])
-                gom_val3 = gom_val3 * performances[0][i] / performances[1][i]
+                gom_val3 = gom_val3 * performances[1][i] / performances[0][i]
             else:
                 performances[0][i] = float(performances[0][i])
                 performances[1][i] = float(performances[1][i])
                 performances[2][i] = float(performances[2][i])
                 performances[3][i] = float(performances[3][i])
                 # 4 group data
-                gom_val1 = gom_val1 * performances[0][i] / performances[1][i]
-                gom_val2 = gom_val2 * performances[2][i] / performances[3][i]
-                gom_val3 = gom_val3 * (performances[0][i] + performances[1][i]) / (performances[2][i] +  performances[3][i])
+                gom_val1 = gom_val1 * performances[1][i] / performances[0][i]
+                gom_val2 = gom_val2 * performances[3][i] / performances[2][i]
+                gom_val3 = gom_val3 * (performances[2][i] + performances[3][i]) / (performances[0][i] +  performances[1][i])
     
 
     # GOM: = pow((Xi * Xj * ...), 1/n)
@@ -163,15 +166,18 @@ def FindBigDiffPerformance(performances, avaiable_idx):
     group_2_data = len(performances) == 2
     list_size = len(avaiable_idx)
     big_diff_val = [ 0 ] * list_size
+    big_diff_percent = [ 0 ] * list_size
     for i in range(len(performances[0])):
         if group_2_data:
-            big_diff_val[i] = performances[1][i] - performances[0][i]
+            big_diff_val[i] = float(performances[1][i]) - float(performances[0][i])
+            big_diff_percent[i] = (big_diff_val[i]) / ((float(performances[1][i]) + float(performances[0][i])) / 2.0)
         else:
             val1 = (float(performances[1][i]) + float(performances[0][i])) / 2.0
             val2 = (float(performances[3][i]) + float(performances[2][i])) / 2.0
             big_diff_val[i] = val2 - val1
+            big_diff_percent[i] = (big_diff_val[i]) / ((val2 + val1) / 2.0)
     
-    return big_diff_val
+    return big_diff_val, big_diff_percent
 
 def PrintInvalidIndex(avaiable_idx, names, performances, accuracys):
     print("All invalid idx:")
@@ -195,14 +201,36 @@ def PrintDiffAccuracy(match_idx, accuracys):
             print("")
     print("")
 
-def PrintDiffPerformance(big_diff_val, performances):
+def PrintDiffPerformance(big_diff_val, big_diff_percent, performances):
     print("Display performance with big diff:")
+
+    li = []
     for i in range(len(big_diff_val)):
-        if big_diff_val[i] > 1:
-            print("{0:3d} ".format(i), end = '')
-            for j in range(len(performances)):
-                print("{0:12s} ".format(str(performances[j][i])), end = '')
-            print("")
+        li.append([big_diff_percent[i], i])
+    
+    print("Top 10. big -> small")
+    li.sort(reverse=1)
+    for i in range(min(len(li), 10)):
+        idx = li[i][1]
+        val = li[i][0]
+
+        print("{0:3d} ".format(idx), end = '')
+        for j in range(len(performances)):
+            print("{0:12s} ".format(str(performances[j][idx])), end = '')
+        print("{0:12f}, {1:2.4f}%".format(big_diff_val[idx], big_diff_percent[idx]*100.0))
+    print("")
+
+    print("Top 10. small -> big", len(li))
+    li.sort()
+    for i in range(min(len(li), 10)):
+        idx = li[i][1]
+        val = li[i][0]
+
+        print("{0:3d} ".format(idx), end = '')
+        for j in range(len(performances)):
+            print("{0:12s} ".format(str(performances[j][idx])), end = '')
+        print("{0:12f}, {1:2.4f}%".format(big_diff_val[idx], big_diff_percent[idx]*100.0))
+
     print("")
 
 def main():
@@ -228,18 +256,15 @@ def main():
     match_idx = CompareAccuracy(accuracys, avaiable_idx)
     PrintDiffAccuracy(match_idx, accuracys)
     
-    big_diff_val = FindBigDiffPerformance(performances, avaiable_idx)
-    PrintDiffPerformance(big_diff_val, performances)
+    big_diff_val, big_diff_percent = FindBigDiffPerformance(performances, avaiable_idx)
+    PrintDiffPerformance(big_diff_val, big_diff_percent, performances)
 
-    # save_fn = "analysis_result.csv"
-    # print("Start save result to", save_fn)
-    # SaveReportCSV(save_fn, 
-    #     [names1_1, names1_2, names2_1, names2_2],
-    #     [performances1_1, performances1_2, performances2_1, performances2_2],
-    #     [accuray1_1, accuray1_2, accuray2_1, accuray2_2],
-    #     gom_val1, gom_val2, # 2 gom
-    #     match_idx,      # 
-    #     big_diff_idx)
+    save_fn = "analysis_result.csv"
+    print("Start save result to", save_fn)
+    SaveReportCSV(save_fn, names, performances, accuracys,
+        gom_1, gom_2, gom_diff, # 3 gom
+        match_idx,      # 
+        big_diff_val, big_diff_percent)
     
 
 if __name__ == "__main__":
