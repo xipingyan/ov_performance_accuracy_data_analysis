@@ -49,6 +49,7 @@ def WritePerformanceTopN(writer, performances, big_diff_val, big_diff_percent, n
 
 def WritePerformance(writer, performances, big_diff_val, big_diff_percent, names):
     writer.writerow(["Performance diff:"])
+    TopN = 20
 
     # Sort with diff val
     li = []
@@ -66,9 +67,9 @@ def WritePerformance(writer, performances, big_diff_val, big_diff_percent, names
         li.append([big_diff_percent[i], i])
 
     desc = ["Sort diff percent", "big -> small"]
-    WritePerformanceTopN(writer, performances, big_diff_val, big_diff_percent, names, li, 10, 1, desc)
+    WritePerformanceTopN(writer, performances, big_diff_val, big_diff_percent, names, li, TopN, 1, desc)
     desc = ["Sort diff percent", "small -> big"]
-    WritePerformanceTopN(writer, performances, big_diff_val, big_diff_percent, names, li, 10, 0, desc)
+    WritePerformanceTopN(writer, performances, big_diff_val, big_diff_percent, names, li, TopN, 0, desc)
 
 def WriteAccuracy(writer, accuracys, match_idx, names):
     writer.writerow([])
