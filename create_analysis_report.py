@@ -74,12 +74,12 @@ def CalcAvaiableIndex(performances, accuracys):
 
     return avaiable_idx
     
-# Calculate 2 result's GOM
-# Return: GOM value and avaiable index
+# Calculate 2 result's GEOMEAN
+# Return: GEOMEAN value and avaiable index
 def CalcGOM_of_2result(performances, avaiable_idx):
-    gom_val1 = 1
-    gom_val2 = 1
-    gom_val3 = 1
+    geomean_val1 = 1
+    geomean_val2 = 1
+    geomean_val3 = 1
     data_2_group = len(performances) == 2
     for i in range(len(performances[0])):
         # Only statistic avaiable value
@@ -87,25 +87,25 @@ def CalcGOM_of_2result(performances, avaiable_idx):
             if data_2_group:
                 performances[0][i] = float(performances[0][i])
                 performances[1][i] = float(performances[1][i])
-                gom_val3 = gom_val3 * performances[1][i] / performances[0][i]
+                geomean_val3 = geomean_val3 * performances[1][i] / performances[0][i]
             else:
                 performances[0][i] = float(performances[0][i])
                 performances[1][i] = float(performances[1][i])
                 performances[2][i] = float(performances[2][i])
                 performances[3][i] = float(performances[3][i])
                 # 4 group data
-                gom_val1 = gom_val1 * performances[1][i] / performances[0][i]
-                gom_val2 = gom_val2 * performances[3][i] / performances[2][i]
-                gom_val3 = gom_val3 * (performances[2][i] + performances[3][i]) / (performances[0][i] +  performances[1][i])
+                geomean_val1 = geomean_val1 * performances[1][i] / performances[0][i]
+                geomean_val2 = geomean_val2 * performances[3][i] / performances[2][i]
+                geomean_val3 = geomean_val3 * (performances[2][i] + performances[3][i]) / (performances[0][i] +  performances[1][i])
     
 
-    # GOM: = pow((Xi * Xj * ...), 1/n)
+    # GEOMEAN: = pow((Xi * Xj * ...), 1/n)
     n = sum(avaiable_idx)
-    gom_val1 = math.pow(gom_val1, 1/n)
-    gom_val2 = math.pow(gom_val2, 1/n)
-    gom_val3 = math.pow(gom_val3, 1/n)
+    geomean_val1 = math.pow(geomean_val1, 1/n)
+    geomean_val2 = math.pow(geomean_val2, 1/n)
+    geomean_val3 = math.pow(geomean_val3, 1/n)
 
-    return [gom_val1, gom_val2, gom_val3]
+    return [geomean_val1, geomean_val2, geomean_val3]
 
 # Compara 4 result if all passed.
 # Return match item index. -1: not go to match; 0: mismatch; 1: match
@@ -259,9 +259,9 @@ def main():
     avaiable_idx = CalcAvaiableIndex(performances, accuracys)
     # PrintInvalidIndex(avaiable_idx, names, performances, accuracys)
 
-    gom_1, gom_2, gom_diff = CalcGOM_of_2result(performances, avaiable_idx)
+    geomean_1, geomean_2, geomean_diff = CalcGOM_of_2result(performances, avaiable_idx)
     print("if there are only 2 group data, ignore 1, 2")
-    print("gom_1, gom_2, gom_diff = {}, {}, {}\n".format(gom_1, gom_2, gom_diff))
+    print("geomean_1, geomean_2, geomean_diff = {}, {}, {}\n".format(geomean_1, geomean_2, geomean_diff))
 
     match_idx = CompareAccuracy(accuracys, avaiable_idx)
     PrintDiffAccuracy(match_idx, accuracys)
@@ -272,7 +272,7 @@ def main():
     save_fn = "analysis_result.csv"
     print("Start save result to", save_fn)
     SaveReportCSV(save_fn, names, performances, accuracys,
-        gom_1, gom_2, gom_diff, # 3 gom
+        geomean_1, geomean_2, geomean_diff, # 3 geomean
         match_idx,      # 
         big_diff_val, big_diff_percent)
     

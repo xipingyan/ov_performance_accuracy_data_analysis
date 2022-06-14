@@ -6,22 +6,22 @@ from tkinter.messagebox import NO
 # Save analysis result
 # sv_fn: save name
 # names, performances, accuracys: Read data from 4 input csv file
-# gom_val1, gom_val2: GOMean result
+# geomean_val1, geomean_val2: GEOMEAM result
 # match_idx: accuracy match id
 # big_diff_idx: index list with big diff FPS.
 def SaveReportCSV(sv_fn, names, performances, accuracys,
-    gom_1, gom_2, gom_diff,
+    geomean_1, geomean_2, geomean_diff,
     match_idx,
     big_diff_val, big_diff_percent):
 
     with open(sv_fn, 'w', newline='') as f: 
         writer = csv.writer(f)
 
-        # GOMean
+        # GEOMEAM
         if len(names) == 2:
-            data = [["GOM", str(gom_diff)]]
+            data = [["GEOMEAN", str(geomean_diff)]]
         else:
-            data = [["Original GOM", str(gom_1)], ["New GOM", str(gom_2)], ["GOM diff", str(gom_diff)]]
+            data = [["Original GEOMEAN", str(geomean_1)], ["New GEOMEAN", str(geomean_2)], ["GEOMEAN diff", str(geomean_diff)]]
         writer.writerows(data)
         
         # Accuracy
