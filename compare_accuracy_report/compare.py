@@ -106,7 +106,7 @@ def CompareAccuracy(model_1, metric_1, value_1, model_2, metric_2, value_2, thr,
     # Loop model_1
     for i in range(len(available_idx_1)):
         if available_idx_1[i] > 0:
-            if value_1[i] is "" or value_2[i] is "":
+            if value_1[i] is "" or value_2[available_idx_1[i]] is "":
                 diff_index[i] = -1
                 continue
 
@@ -131,7 +131,7 @@ def SaveReportCSV(save_fn, data_1, data_2,
 
         for i in range(len(diff_index)):
             if diff_index[i] != 0 :
-                data = [data_1[0][i], data_1[4][i], data_1[5][i], data_2[5][i], diff_index[i]]
+                data = [data_1[0][i], data_1[4][i], data_1[5][i], data_2[5][available_idx_1[i]], diff_index[i]]
                 writer.writerows([data])
 
         # Save no match items for 1
