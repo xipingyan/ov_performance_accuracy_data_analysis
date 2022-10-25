@@ -13,7 +13,7 @@ def ParseArgs():
     # CSV1
     csv1 = "../../report_master_int8/accuracy.cpu.20221021_15_53.csv"
     csv2 = "../../report_rm_patch_int8/accuracy.cpu.20221023_11_09.csv"
-    thr = 0.01
+    thr = 0.001
 
     print("Argv number =", len(sys.argv))
     if len(sys.argv) == 2 and sys.argv[1] == "-h":
@@ -73,22 +73,23 @@ def ReadCSVFile(csv_fn):
     return [model, framework, precision, result, metric, value, ref_value, path, description]
 
 # Calc avaiable indexs
-def CalcAvaiableIndex(model_1, metric_1, value_1, model_2, metric_2, value_2, thr):
-    if model_1 is None or model_2 is None:
+def CalcAvaiableIndex(data_1, data_2):
+    if data_1[0] is None or data_2[0] is None:
         print("model_1 or model_2 is None.")
         return
 
-    avaiable_idx_1 = [ 0 ] * len(model_1)
-    avaiable_idx_2 = [ 0 ] * len(model_2)
+    avaiable_idx_1 = [ 0 ] * len(data_1[0])
+    avaiable_idx_2 = [ 0 ] * len(data_2[0])
 
     # Loop model_1
-    for i in range(len(model_1)):
-        model_name = model_1[i]
-        metric_name = metric_1[i]
+    for i in range(len(data_1[0])):
+        model_name = data_1[0][i]
+        framework = data_1[1][i]
+        metric_name = data_1[4][i]
 
         # Loop model_2
-        for j in range(len(model_2)):
-            if model_name == model_2[j] and metric_name == metric_2[j] :
+        for j in range(len(data_2[0])):
+            if model_name == data_2[0][j] and framework == data_2[1][j] and metric_name == data_2[4][j]:
                 avaiable_idx_1[i] = j
                 avaiable_idx_2[j] = i
                 break
@@ -127,29 +128,29 @@ def SaveReportCSV(save_fn, data_1, data_2,
         # Save > threshold items 
         title = [["Greater than thread:", str(thr)]]
         writer.writerows(title)
-        writer.writerows([["model", "metric", "value_1", "value_2", "diff_fabs"]])
+        writer.writerows([["model", "framework", "metric", "ref_value", "value_1", "value_2", "diff_fabs"]])
 
         for i in range(len(diff_index)):
             if diff_index[i] != 0 :
-                data = [data_1[0][i], data_1[4][i], data_1[5][i], data_2[5][available_idx_1[i]], diff_index[i]]
+                data = [data_1[0][i], data_1[1][i], data_1[4][i], data_1[6][i], data_1[5][i], data_2[5][available_idx_1[i]], diff_index[i]]
                 writer.writerows([data])
 
         # Save no match items for 1
         writer.writerows([[]])
         writer.writerows([["Save no match items:", csv1]])
-        writer.writerows([["model", "metric", "value_1"]])
+        writer.writerows([["model", "framework", "result", "metric", "ref_value", "value_1"]])
         for i in range(len(available_idx_1)):
             if available_idx_1[i] == 0 :
-                data = [data_1[0][i], data_1[4][i], data_1[5][i]]
+                data = [data_1[0][i], data_1[1][i], data_1[3][i], data_1[4][i], data_1[5][i], data_1[6][i]]
                 writer.writerows([data])
 
         # Save no match items for 2
         writer.writerows([[]])
         writer.writerows([["Save no match items:", csv2]])
-        writer.writerows([["model", "metric", "value_1"]])
+        writer.writerows([["model", "framework", "result", "metric", "ref_value", "value_2"]])
         for i in range(len(available_idx_2)):
             if available_idx_2[i] == 0 :
-                data = [data_2[0][i], data_2[4][i], data_2[5][i]]
+                data = [data_2[0][i], data_2[1][i], data_2[3][i], data_2[4][i], data_2[5][i], data_2[6][i]]
                 writer.writerows([data])
 
 def main():
@@ -162,8 +163,7 @@ def main():
 
     # Because the CSV file maybe have different model number, 
     # and they also have random order,so we need to find avaiable compare items.
-    available_idx_1, available_idx_2 = CalcAvaiableIndex(data_1[0], data_1[4], data_1[5], 
-        data_2[0], data_2[4], data_2[5], thr)
+    available_idx_1, available_idx_2 = CalcAvaiableIndex(data_1, data_2)
     # 0 mean not available for available_idx, other value mean index in correspoding available_idx.
 
     # Compare acurracy
